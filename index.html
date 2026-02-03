@@ -3,158 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop Ultra PWA</title>
+    <title>PrivDrop Ultra</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007aff">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
-        :root { 
-            --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; 
-            --green: #34c759; --border: #dddddd; 
-        }
-        @media (prefers-color-scheme: dark) {
-            :root { --bg: #000000; --card: #1c1c1e; --text: #ffffff; --border: #38383a; }
-        }
+        :root { --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --green: #34c759; --border: #dddddd; }
+        @media (prefers-color-scheme: dark) { :root { --bg: #000000; --card: #1c1c1e; --text: #ffffff; --border: #38383a; } }
         
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); transition: 0.3s; overflow-x: hidden; }
         
-        .card { background: var(--card); padding: 20px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); text-align: center; margin-bottom: 20px; box-sizing: border-box; }
-        .my-id { font-size: 34px; font-weight: 800; color: var(--blue); letter-spacing: 3px; margin: 10px 0; }
+        .card { background: var(--card); padding: 25px; border-radius: 28px; width: 100%; max-width: 420px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); text-align: center; margin-bottom: 20px; box-sizing: border-box; }
+        .my-id { font-size: 38px; font-weight: 800; color: var(--blue); letter-spacing: 4px; margin: 10px 0; }
         
-        #qrcode { display: flex; justify-content: center; margin: 15px auto; background: white; padding: 10px; border-radius: 15px; width: fit-content; }
+        #qrcode { display: flex; justify-content: center; margin: 15px auto; background: white; padding: 12px; border-radius: 18px; width: fit-content; }
         
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .btn-sec { padding: 12px; border-radius: 14px; border: none; font-weight: 600; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-sec { padding: 14px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; color: white; transition: 0.2s; }
         .btn-wpp { background: #25d366; } .btn-scan { background: #3a3a3c; }
 
-        #reader { width: 100%; border-radius: 20px; overflow: hidden; display: none; margin-bottom: 20px; border: 2px solid var(--blue); background: #000; }
+        #reader { width: 100%; border-radius: 24px; overflow: hidden; display: none; margin-bottom: 20px; border: 2px solid var(--blue); background: #000; }
 
-        .drop-zone { border: 2px dashed var(--border); border-radius: 20px; padding: 40px 20px; cursor: pointer; background: rgba(128,128,128,0.05); margin-bottom: 15px; transition: 0.3s; }
-        .drop-zone:active { background: rgba(0,122,255,0.1); }
+        .drop-zone { border: 2px dashed var(--border); border-radius: 24px; padding: 50px 20px; cursor: pointer; background: rgba(128,128,128,0.05); margin-bottom: 15px; transition: 0.2s; }
+        .drop-zone:active { transform: scale(0.98); background: rgba(0,122,255,0.05); }
         
-        .btn-primary { background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.2s; }
-        .btn-primary:disabled { background: #888; cursor: not-allowed; }
+        .btn-primary { background: var(--blue); color: white; border: none; padding: 20px; border-radius: 18px; font-size: 16px; font-weight: 800; width: 100%; cursor: pointer; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
+        .btn-primary:disabled { background: #888; box-shadow: none; opacity: 0.6; }
 
-        /* Interface de Progresso Otimizada */
-        #progress-container { display: none; margin-top: 20px; width: 100%; padding: 15px; background: rgba(128,128,128,0.05); border-radius: 18px; }
-        .progress-track { background: var(--border); height: 8px; border-radius: 4px; overflow: hidden; margin: 12px 0; }
-        #progress-bar { background: var(--blue); width: 0%; height: 100%; transition: width 0.3s linear; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; font-size: 12px; font-weight: bold; color: #888; gap: 5px; }
-        .eta { grid-column: span 2; color: var(--blue); margin-top: 8px; font-size: 13px; text-align: center; }
+        #progress-container { display: none; margin-top: 20px; width: 100%; padding: 20px; background: rgba(128,128,128,0.08); border-radius: 20px; box-sizing: border-box; }
+        .progress-track { background: var(--border); height: 10px; border-radius: 5px; overflow: hidden; margin: 15px 0; }
+        #progress-bar { background: var(--blue); width: 0%; height: 100%; transition: width 0.4s ease-out; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; font-size: 13px; font-weight: 800; color: #888; gap: 8px; }
+        .eta { grid-column: span 2; color: var(--blue); margin-top: 10px; font-size: 14px; text-align: center; }
 
-        #status-msg { margin-top: 15px; font-size: 14px; color: var(--blue); font-weight: 700; }
-        #file-list { text-align: left; font-size: 13px; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; max-height: 100px; overflow-y: auto; }
+        #status-msg { margin-top: 15px; font-size: 15px; color: var(--blue); font-weight: 700; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <span style="color: #8e8e93; font-size: 11px; font-weight: bold; text-transform: uppercase;">Seu Código PrivDrop</span>
+        <span style="color: #8e8e93; font-size: 12px; font-weight: 800; text-transform: uppercase;">Seu ID de Acesso</span>
         <div id="my-id-display" class="my-id">----</div>
         <div id="qrcode"></div>
         <div class="btn-row">
             <button class="btn-sec btn-wpp" onclick="shareWhatsApp()">WhatsApp</button>
-            <button class="btn-sec btn-scan" onclick="toggleScanner()">Câmera</button>
+            <button class="btn-sec btn-scan" onclick="toggleScanner()">Escanear</button>
         </div>
     </div>
 
     <div id="reader"></div>
 
     <div class="card" id="setup-card">
-        <input type="text" id="peer-id-input" placeholder="Digite o ID do amigo" style="width:100%; padding:15px; border-radius:15px; border:1px solid var(--border); background: var(--bg); color: var(--text); text-align:center; margin-bottom:12px; font-size: 18px; font-weight: 600;">
+        <input type="text" id="peer-id-input" placeholder="ID do destinatário" style="width:100%; padding:18px; border-radius:18px; border:1px solid var(--border); background: var(--bg); color: var(--text); text-align:center; margin-bottom:15px; font-size: 20px; font-weight: 700;">
         <button class="btn-primary" onclick="connectToPeer()">Conectar Agora</button>
         <div id="status-msg">Aguardando Conexão...</div>
     </div>
 
     <div class="card" id="transfer-card" style="display:none;">
         <div class="drop-zone" onclick="document.getElementById('file-input').click()">
-            <span style="font-size: 50px;">📂</span>
-            <p id="drop-label" style="margin-top:10px; font-weight: 600;">Selecionar Arquivos</p>
+            <span style="font-size: 55px;">📂</span>
+            <p id="drop-label" style="margin-top:10px; font-weight: 700;">Escolher Arquivos</p>
             <input type="file" id="file-input" multiple style="display: none;">
         </div>
         
         <div id="progress-container">
             <div class="stats-grid">
                 <span id="percent-label">0%</span>
-                <span id="speed-label" style="text-align: right;">0 KB/s</span>
-                <div class="eta" id="eta-label">Calculando tempo restante...</div>
+                <span id="speed-label" style="text-align: right;">0 MB/s</span>
+                <div class="eta" id="eta-label">Preparando...</div>
             </div>
             <div class="progress-track"><div id="progress-bar"></div></div>
-            <div id="file-list"></div>
+            <div id="file-list" style="font-size:12px; text-align:left; opacity:0.7;"></div>
         </div>
 
-        <button class="btn-primary" style="background:var(--green); display:none; margin-top:15px;" id="send-trigger" onclick="sendAllFiles()">Enviar Agora</button>
+        <button class="btn-primary" style="background:var(--green); display:none; margin-top:15px;" id="send-trigger" onclick="sendAllFiles()">Enviar Tudo</button>
     </div>
 
     <script>
         let peer, conn, selectedFiles = [], html5QrCode, receivedChunks = {};
         const statusLbl = document.getElementById('status-msg');
 
-        // Áudio Context para Feedback Sonoro
+        // Audio Feedback
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(type) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            if(type === 'connect') { osc.frequency.setValueAtTime(440, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); }
-            else if(type === 'success') { osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1); }
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        function playSound(t) {
+            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            o.frequency.setValueAtTime(t === 'success' ? 880 : 440, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            o.start(); o.stop(audioCtx.currentTime + 0.1);
         }
 
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 
-        // Inicia PeerJS
         peer = new Peer(Math.floor(1000 + Math.random() * 9000).toString());
         
         peer.on('open', id => {
             document.getElementById('my-id-display').innerText = id;
             const link = `${window.location.origin}${window.location.pathname}?join=${id}`;
-            new QRCode(document.getElementById("qrcode"), { text: link, width: 140, height: 140 });
-            
+            new QRCode(document.getElementById("qrcode"), { text: link, width: 150, height: 150 });
             const joinId = new URLSearchParams(window.location.search).get('join');
             if (joinId) { document.getElementById('peer-id-input').value = joinId; setTimeout(connectToPeer, 1000); }
         });
 
         function toggleScanner() {
-            const readerDiv = document.getElementById('reader');
-            if (readerDiv.style.display === 'block') { html5QrCode.stop(); readerDiv.style.display = 'none'; return; }
-            readerDiv.style.display = 'block';
+            const r = document.getElementById('reader');
+            if (r.style.display === 'block') { html5QrCode.stop(); r.style.display = 'none'; return; }
+            r.style.display = 'block';
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (decoded) => {
-                const url = new URL(decoded);
+            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (text) => {
+                const url = new URL(text);
                 document.getElementById('peer-id-input').value = url.searchParams.get("join");
-                html5QrCode.stop().then(() => { readerDiv.style.display = 'none'; connectToPeer(); });
+                html5QrCode.stop().then(() => { r.style.display = 'none'; connectToPeer(); });
             }).catch(() => {});
         }
 
         function connectToPeer() {
-            const targetId = document.getElementById('peer-id-input').value;
-            if (!targetId) return;
-            statusLbl.innerText = "Tentando Conectar...";
-            conn = peer.connect(targetId, { reliable: true });
-            conn.on('open', () => { playSound('connect'); setupTransferMode("Dispositivo Conectado!"); });
+            const target = document.getElementById('peer-id-input').value;
+            if (!target) return;
+            statusLbl.innerText = "Conectando...";
+            conn = peer.connect(target, { reliable: true });
+            conn.on('open', () => { playSound('connect'); setupTransferMode("Conectado!"); });
             setupHandler();
         }
 
-        peer.on('connection', c => { 
-            conn = c; 
-            playSound('connect'); 
-            setupHandler(); 
-            setupTransferMode("Alguém se conectou!"); 
-        });
+        peer.on('connection', c => { conn = c; playSound('connect'); setupHandler(); setupTransferMode("Conectado!"); });
 
-        function setupTransferMode(msg) {
+        function setupTransferMode(m) {
             document.getElementById('transfer-card').style.display = 'block';
             document.getElementById('setup-card').style.display = 'none';
-            statusLbl.innerText = msg;
+            statusLbl.innerText = m;
         }
 
         function setupHandler() {
@@ -162,79 +147,67 @@
                 if (data.file) {
                     if (!receivedChunks[data.name]) receivedChunks[data.name] = [];
                     receivedChunks[data.name].push(data.file);
-                    
-                    const currentReceived = receivedChunks[data.name].length * (data.chunkSize || 16384);
-                    const percent = Math.min(100, Math.round((currentReceived / data.size) * 100));
+                    const receivedSize = receivedChunks[data.name].length * 65536;
+                    const percent = Math.min(100, Math.round((receivedSize / data.size) * 100));
                     statusLbl.innerText = `Recebendo: ${percent}%`;
-
                     if (data.isFinal) {
-                        const blob = new Blob(receivedChunks[data.name], { type: data.type });
+                        const b = new Blob(receivedChunks[data.name], { type: data.type });
                         const a = document.createElement('a');
-                        a.href = URL.createObjectURL(blob);
-                        a.download = data.name; a.click();
+                        a.href = URL.createObjectURL(b); a.download = data.name; a.click();
                         delete receivedChunks[data.name];
-                        statusLbl.innerText = "✅ Arquivo Recebido!"; playSound('success');
+                        statusLbl.innerText = "✅ Recebido!"; playSound('success');
                     }
                 }
             });
-            conn.on('close', () => { alert("Conexão encerrada."); location.reload(); });
+            conn.on('close', () => location.reload());
         }
 
         document.getElementById('file-input').onchange = e => {
             selectedFiles = Array.from(e.target.files);
             document.getElementById('file-list').innerHTML = selectedFiles.map(f => `<div>📄 ${f.name}</div>`).join('');
             document.getElementById('send-trigger').style.display = 'block';
-            document.getElementById('drop-label').innerText = selectedFiles.length + " arquivos prontos";
+            document.getElementById('drop-label').innerText = selectedFiles.length + " prontos";
         };
 
-        // ALGORITMO DE ENVIO ADAPTATIVO
+        // FUNÇÃO DE ENVIO COM LIMITADOR DE INTERFACE PARA ALTA VELOCIDADE
         async function sendFile(file) {
-            let CHUNK_SIZE = 16384; 
-            const MAX_CHUNK = 131072; // 128KB max para estabilidade WebRTC
+            const CHUNK_SIZE = 65536; // 64KB por fatia
             const totalSize = file.size;
             let offset = 0;
             let startTime = Date.now();
+            let lastUpdate = 0; // Limitador de tempo para a UI
+
             document.getElementById('progress-container').style.display = 'block';
 
             while (offset < totalSize) {
-                // Controle de Congestionamento Adaptativo
-                if (conn.bufferAmount < CHUNK_SIZE && CHUNK_SIZE < MAX_CHUNK) {
-                    CHUNK_SIZE += 16384; 
-                }
-
                 const chunk = file.slice(offset, offset + CHUNK_SIZE);
                 const buffer = await chunk.arrayBuffer();
                 
-                try {
-                    conn.send({ 
-                        file: buffer, 
-                        name: file.name, 
-                        type: file.type, 
-                        size: totalSize, 
-                        offset: offset, 
-                        chunkSize: CHUNK_SIZE,
-                        isFinal: (offset + CHUNK_SIZE >= totalSize) 
-                    });
-                    offset += CHUNK_SIZE;
-                } catch (e) {
-                    CHUNK_SIZE = 16384; // Reset em caso de erro
-                    await new Promise(r => setTimeout(r, 100));
-                    continue;
-                }
+                conn.send({ 
+                    file: buffer, 
+                    name: file.name, 
+                    type: file.type, 
+                    size: totalSize, 
+                    isFinal: (offset + CHUNK_SIZE >= totalSize) 
+                });
+                
+                offset += CHUNK_SIZE;
 
-                // Atualização Otimizada da UI
-                if (offset % (CHUNK_SIZE * 5) === 0 || offset >= totalSize) {
-                    const now = Date.now();
+                const now = Date.now();
+                // SÓ ATUALIZA A TELA A CADA 500ms (Evita engasgar o processador)
+                if (now - lastUpdate > 500 || offset >= totalSize) {
                     const duration = (now - startTime) / 1000;
                     const bps = offset / duration;
                     const percent = Math.min(100, Math.round((offset / totalSize) * 100));
-                    const speedKB = (bps / 1024).toFixed(1);
+                    const speedMB = (bps / 1024 / 1024).toFixed(1);
                     const eta = Math.round((totalSize - offset) / bps);
 
                     document.getElementById('progress-bar').style.width = percent + '%';
                     document.getElementById('percent-label').innerText = percent + '%';
-                    document.getElementById('speed-label').innerText = speedKB > 1024 ? (speedKB/1024).toFixed(1) + " MB/s" : speedKB + " KB/s";
-                    document.getElementById('eta-label').innerText = percent < 100 ? `Tempo restante: ~${eta}s` : "Finalizando...";
+                    document.getElementById('speed-label').innerText = speedMB + " MB/s";
+                    document.getElementById('eta-label').innerText = percent < 100 ? `Restam aprox. ${eta}s` : "Finalizando...";
+                    
+                    lastUpdate = now;
                 }
             }
         }
@@ -246,14 +219,13 @@
                 await sendFile(file);
             }
             playSound('success');
-            statusLbl.innerText = "✅ Tudo enviado com sucesso!";
+            statusLbl.innerText = "✅ Tudo enviado!";
             btn.disabled = false;
         }
 
         function shareWhatsApp() {
-            const id = document.getElementById('my-id-display').innerText;
-            const link = `${window.location.origin}${window.location.pathname}?join=${id}`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Me envie arquivos por aqui: " + link)}`);
+            const link = `${window.location.origin}${window.location.pathname}?join=${document.getElementById('my-id-display').innerText}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Receba meus arquivos: " + link)}`);
         }
     </script>
 </body>
