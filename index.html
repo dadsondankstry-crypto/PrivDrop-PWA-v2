@@ -3,232 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop Ultra - High Speed</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#007aff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>PrivDrop Lab Ultra - Precision ETA</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
-        :root { --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --green: #34c759; --border: #dddddd; --tg: #0088cc; }
+        :root { 
+            --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; 
+            --green: #34c759; --border: #dddddd; --red: #ff3b30; --tg: #0088cc; 
+            --nitro-1: #8A2BE2; --nitro-2: #FF00FF;
+        }
         @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --text: #fff; --border: #38383a; } }
         
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); transition: 0.3s; overflow-x: hidden; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); }
+        .card { background: var(--card); padding: 20px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); text-align: center; margin-bottom: 15px; box-sizing: border-box; }
         
-        .card { background: var(--card); padding: 25px; border-radius: 28px; width: 100%; max-width: 400px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); text-align: center; margin-bottom: 20px; box-sizing: border-box; }
-        .my-id { font-size: 38px; font-weight: 800; color: var(--blue); letter-spacing: 4px; margin: 10px 0; }
+        .section-title { font-size: 10px; font-weight: 800; color: #888; text-transform: uppercase; margin: 15px 0 8px; display: block; text-align: left; letter-spacing: 1px; }
         
-        #qrcode { display: flex; justify-content: center; margin: 15px auto; background: white; padding: 10px; border-radius: 15px; width: fit-content; }
-        
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .btn-sec { padding: 12px 5px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; color: white; font-size: 11px; text-transform: uppercase; }
-        .btn-wpp { background: var(--green); } 
-        .btn-tg { background: var(--tg); }
-        .btn-scan { background: #3a3a3c; }
+        /* Conexão Rápida */
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .btn-sec { padding: 12px 5px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; color: white; font-size: 10px; text-transform: uppercase; }
 
-        #reader { width: 100%; border-radius: 20px; overflow: hidden; display: none; margin-bottom: 20px; border: 2px solid var(--blue); background: #000; }
-
-        .drop-zone { border: 2px dashed var(--border); border-radius: 20px; padding: 40px 20px; cursor: pointer; background: rgba(128,128,128,0.05); margin-bottom: 15px; }
-        .btn-primary { background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; }
-
-        #progress-container { display: none; margin-top: 20px; width: 100%; padding: 15px; background: rgba(128,128,128,0.05); border-radius: 15px; }
-        .progress-track { background: var(--border); height: 10px; border-radius: 5px; overflow: hidden; margin: 10px 0; }
+        /* Grades de Motor */
+        .grid-opt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+        .btn-opt { background: var(--bg); border: 2px solid var(--border); color: var(--text); padding: 12px 2px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-opt.active { background: var(--blue); color: white; border-color: var(--blue); transform: scale(1.05); }
         
-        /* Transition suave para acompanhar o limitador de 1500ms */
-        #progress-bar { background: var(--blue); width: 0%; height: 100%; transition: width 0.8s ease-out; }
-        
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; font-size: 12px; font-weight: bold; color: #888; }
-        .eta { grid-column: span 2; color: var(--blue); margin-top: 5px; font-size: 13px; text-align: center; }
+        /* Botão Nitro */
+        .btn-nitro { grid-column: span 3; background: linear-gradient(90deg, var(--nitro-1), var(--nitro-2)); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4); }
+        .btn-nitro.active { outline: 3px solid white; box-shadow: 0 0 20px var(--nitro-2); }
 
-        #status-msg { margin-top: 15px; font-size: 14px; color: var(--blue); font-weight: 700; }
+        /* Ações Principais */
+        .btn-main { border: none; padding: 18px; border-radius: 18px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; font-size: 14px; color: white; text-transform: uppercase; }
+        #send-btn { background: var(--green); }
+        #stop-btn { background: var(--red); display: none; }
+
+        /* Barra de Progresso e Loop */
+        .progress-track { background: var(--border); height: 16px; border-radius: 8px; overflow: hidden; margin: 15px 0; }
+        #progress-bar { background: var(--blue); width: 0%; height: 100%; transition: width 0.3s ease-out; }
+        @keyframes loop-anim { 0% { background-position: 0 0; } 100% { background-position: 30px 30px; } }
+        .loop-bar { width: 100% !important; background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent); background-size: 30px 30px; background-color: var(--nitro-1); animation: loop-anim 1s linear infinite; }
+
+        #reader { width: 100%; border-radius: 20px; overflow: hidden; display: none; margin-bottom: 15px; border: 2px solid var(--blue); background: #000; }
+        
+        /* ETA Style */
+        #eta-display { font-size: 11px; font-weight: 800; color: var(--blue); margin-top: 5px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <span style="color: #8e8e93; font-size: 11px; font-weight: bold; text-transform: uppercase;">ID do Dispositivo</span>
-        <div id="my-id-display" class="my-id">----</div>
-        <div id="qrcode"></div>
+        <div id="my-id-display" style="font-size: 32px; font-weight: 900; color: var(--blue);">----</div>
+        <div id="qrcode" style="display: flex; justify-content: center; margin: 10px 0;"></div>
         
         <div class="btn-row">
-            <button class="btn-sec btn-wpp" onclick="shareWhatsApp()">WhatsApp</button>
-            <button class="btn-sec btn-tg" onclick="shareTelegram()">Telegram</button>
-            <button class="btn-sec btn-scan" onclick="toggleScanner()">Câmera</button>
+            <button class="btn-sec" style="background:var(--green)" onclick="shareWpp()">WhatsApp</button>
+            <button class="btn-sec" style="background:var(--tg)" onclick="shareTg()">Telegram</button>
+            <button class="btn-sec" style="background:#3a3a3c" onclick="toggleScanner()">Câmera</button>
         </div>
     </div>
 
     <div id="reader"></div>
 
-    <div class="card" id="setup-card">
-        <input type="text" id="peer-id-input" placeholder="ID do destinatário" style="width:100%; padding:15px; border-radius:15px; border:1px solid var(--border); background: var(--bg); color: var(--text); text-align:center; margin-bottom:12px; font-size: 18px; font-weight: 700;">
-        <button class="btn-primary" onclick="connectToPeer()">Conectar Agora</button>
-        <div id="status-msg">Pronto para transferir</div>
+    <div class="card">
+        <span class="section-title">🚀 Motor (Chunk Size)</span>
+        <div class="grid-opt">
+            <button class="btn-opt" onclick="setChunk(65536, this)">64KB</button>
+            <button class="btn-opt" onclick="setChunk(131072, this)">128KB</button>
+            <button class="btn-opt active" onclick="setChunk(262144, this)">256KB</button>
+            <button class="btn-opt" onclick="setChunk(524288, this)">512KB</button>
+            <button class="btn-opt" onclick="setChunk(1048576, this)">1024KB</button>
+            <button class="btn-opt" onclick="setChunk(2097152, this)">2048KB</button>
+        </div>
+        <button class="btn-nitro" id="nitro-btn" onclick="setNitro(this)">Modo Item Inteiro (Nitro)</button>
+
+        <span class="section-title" style="margin-top: 20px;">⏱️ Pulso (Update Delay)</span>
+        <div class="grid-opt">
+            <button class="btn-opt" onclick="setMs(100, this)">100ms</button>
+            <button class="btn-opt" onclick="setMs(500, this)">500ms</button>
+            <button class="btn-opt active" onclick="setMs(1500, this)">1.5s</button>
+            <button class="btn-opt" onclick="setMs(3000, this)">3s</button>
+            <button class="btn-opt" onclick="setMs(5000, this)">5s</button>
+            <button class="btn-opt" onclick="setMs(10000, this)">10s</button>
+        </div>
     </div>
 
-    <div class="card" id="transfer-card" style="display:none;">
-        <div class="drop-zone" onclick="document.getElementById('file-input').click()">
-            <span style="font-size: 50px;">📂</span>
-            <p id="drop-label" style="font-weight: 700;">Selecionar Arquivos</p>
-            <input type="file" id="file-input" multiple style="display: none;">
-        </div>
-        
-        <div id="progress-container">
-            <div class="stats-grid">
-                <span id="percent-label">0%</span>
-                <span id="speed-label" style="text-align: right;">0 MB/s</span>
-                <div class="eta" id="eta-label">Calculando...</div>
+    <div class="card" id="transfer-area" style="display:none;">
+        <input type="file" id="file-input" multiple style="width: 100%; margin-bottom: 15px;">
+        <div id="progress-container" style="display:none;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold;">
+                <span id="pct">0%</span>
+                <span id="speed">AGUARDANDO...</span>
             </div>
             <div class="progress-track"><div id="progress-bar"></div></div>
-            <div id="file-list" style="font-size:11px; text-align:left; opacity:0.6; max-height: 80px; overflow-y: auto;"></div>
+            <div id="eta-display">Estimando tempo...</div>
+            <div id="config-label" style="font-size: 10px; opacity: 0.5; text-align: center; margin-top: 5px;"></div>
         </div>
-
-        <button class="btn-primary" style="background:var(--green); display:none; margin-top:15px;" id="send-trigger" onclick="sendAllFiles()">Enviar Tudo</button>
+        <button id="send-btn" class="btn-main" onclick="sendAll()">Iniciar Transferência</button>
+        <button id="stop-btn" class="btn-main" onclick="cancelTransfer()">🛑 Parar Envio</button>
     </div>
 
     <script>
-        let peer, conn, selectedFiles = [], html5QrCode, receivedChunks = {};
-        const statusLbl = document.getElementById('status-msg');
+        let peer, conn, chunkVal = 262144, msVal = 1500, nitro = false, isCancelled = false, html5QrCode;
+        let received = {};
 
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-
-        // Inicialização PeerJS
         peer = new Peer(Math.floor(1000 + Math.random() * 9000).toString());
-        
         peer.on('open', id => {
             document.getElementById('my-id-display').innerText = id;
-            const link = `${window.location.origin}${window.location.pathname}?join=${id}`;
-            new QRCode(document.getElementById("qrcode"), { text: link, width: 140, height: 140 });
-            
-            const joinId = new URLSearchParams(window.location.search).get('join');
-            if (joinId) { document.getElementById('peer-id-input').value = joinId; setTimeout(connectToPeer, 1000); }
+            new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?join=" + id, width: 120, height: 120 });
+            const join = new URLSearchParams(window.location.search).get('join');
+            if(join) connect(join);
         });
+        peer.on('connection', c => { conn = c; setupConn(); });
 
-        function connectToPeer() {
-            const target = document.getElementById('peer-id-input').value;
-            if (!target) return;
-            statusLbl.innerText = "Conectando...";
-            conn = peer.connect(target, { reliable: true });
-            conn.on('open', () => setupTransferMode("Dispositivo Pareado!"));
-            setupHandler();
-        }
+        function connect(id) { conn = peer.connect(id); setupConn(); }
 
-        peer.on('connection', c => { conn = c; setupHandler(); setupTransferMode("Conectado!"); });
-
-        function setupTransferMode(m) {
-            document.getElementById('transfer-card').style.display = 'block';
-            document.getElementById('setup-card').style.display = 'none';
-            statusLbl.innerText = m;
-        }
-
-        function setupHandler() {
-            conn.on('data', data => {
-                if (data.file) {
-                    if (!receivedChunks[data.name]) receivedChunks[data.name] = [];
-                    receivedChunks[data.name].push(data.file);
-                    const currentReceived = receivedChunks[data.name].length * 65536;
-                    const percent = Math.min(100, Math.round((currentReceived / data.size) * 100));
-                    statusLbl.innerText = `Recebendo: ${percent}%`;
-                    if (data.isFinal) {
-                        const b = new Blob(receivedChunks[data.name], { type: data.type });
-                        const a = document.createElement('a');
-                        a.href = URL.createObjectURL(b); a.download = data.name; a.click();
-                        delete receivedChunks[data.name];
-                        statusLbl.innerText = "✅ Arquivo Salvo!";
-                    }
+        function setupConn() {
+            document.getElementById('transfer-area').style.display = 'block';
+            conn.on('data', d => {
+                if(d.full) { save(new Blob([d.full], {type:d.type}), d.name); }
+                else if(d.file) {
+                    if(!received[d.name]) received[d.name] = [];
+                    received[d.name].push(d.file);
+                    if(d.last) { save(new Blob(received[d.name], {type:d.type}), d.name); delete received[d.name]; }
                 }
             });
         }
 
-        document.getElementById('file-input').onchange = e => {
-            selectedFiles = Array.from(e.target.files);
-            document.getElementById('file-list').innerHTML = selectedFiles.map(f => `<div>📄 ${f.name}</div>`).join('');
-            document.getElementById('send-trigger').style.display = 'block';
-            document.getElementById('drop-label').innerText = selectedFiles.length + " prontos";
-        };
+        function save(b, n) { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = n; a.click(); }
 
-        // ENVIO DE ALTA PERFORMANCE (UI LIMITADA A 1500ms)
-        async function sendFile(file) {
-            let CHUNK_SIZE = 65536; 
-            const MAX_CHUNK = 131072;
-            const totalSize = file.size;
-            let offset = 0;
-            let startTime = Date.now();
-            let lastUpdate = 0;
+        function setChunk(v, b) { chunkVal = v; nitro = false; resetGrp('.btn-opt:nth-child(-n+6)', b); document.getElementById('nitro-btn').classList.remove('active'); updateDatalabel(); }
+        function setMs(v, b) { msVal = v; resetGrp('.btn-opt:nth-child(n+7)', b); updateDatalabel(); }
+        function setNitro(b) { nitro = !nitro; b.classList.toggle('active'); if(nitro) { document.querySelectorAll('.grid-opt:first-of-type .btn-opt').forEach(x => x.classList.remove('active')); } updateDatalabel(); }
+        function resetGrp(s, b) { document.querySelectorAll(s).forEach(x => x.classList.remove('active')); b.classList.add('active'); }
+        function updateDatalabel() { document.getElementById('config-label').innerText = `Motor: ${nitro?'NITRO':chunkVal/1024+'KB'} | UI: ${msVal}ms`; }
 
+        // Função para formatar o tempo (ETA)
+        function formatTime(seconds) {
+            if (seconds === Infinity || isNaN(seconds)) return "Calculando...";
+            if (seconds < 60) return `Faltam ${Math.round(seconds)} segundos`;
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.round(seconds % 60);
+            return `Faltam ${mins}m ${secs}s`;
+        }
+
+        async function sendFile(f) {
+            isCancelled = false;
+            const pBar = document.getElementById('progress-bar');
+            const etaDisp = document.getElementById('eta-display');
             document.getElementById('progress-container').style.display = 'block';
+            document.getElementById('send-btn').style.display = 'none';
+            document.getElementById('stop-btn').style.display = 'block';
 
-            while (offset < totalSize) {
-                // Adaptativo Simples
-                if (conn.bufferAmount < CHUNK_SIZE && CHUNK_SIZE < MAX_CHUNK) CHUNK_SIZE += 16384;
+            if(nitro) {
+                pBar.className = 'loop-bar';
+                document.getElementById('speed').innerText = "NITRO INJECTING...";
+                etaDisp.innerText = "Modo Nitro: Sem estimativa fixa";
+                await new Promise(r => setTimeout(r, 100));
+                conn.send({ full: f, name: f.name, type: f.type });
+                pBar.className = ''; pBar.style.width = '100%';
+                document.getElementById('speed').innerText = "ENVIADO!";
+                etaDisp.innerText = "Concluído!";
+            } else {
+                pBar.className = ''; pBar.style.width = '0%';
+                let offset = 0, start = Date.now(), lastUp = 0;
+                while(offset < f.size) {
+                    if(isCancelled) break;
+                    const chk = f.slice(offset, offset + chunkVal);
+                    conn.send({ file: await chk.arrayBuffer(), name: f.name, type: f.type, size: f.size, last: (offset + chunkVal >= f.size) });
+                    offset += chunkVal;
+                    let now = Date.now();
+                    if(now - lastUp > msVal || offset >= f.size) {
+                        let duration = (now - start) / 1000;
+                        let bps = offset / duration;
+                        let pct = Math.round((offset/f.size)*100);
+                        
+                        // Cálculo do ETA
+                        let remainingBytes = f.size - offset;
+                        let remainingTime = remainingBytes / bps;
 
-                const chunk = file.slice(offset, offset + CHUNK_SIZE);
-                const buffer = await chunk.arrayBuffer();
-                
-                conn.send({ 
-                    file: buffer, 
-                    name: file.name, 
-                    type: file.type, 
-                    size: totalSize, 
-                    isFinal: (offset + CHUNK_SIZE >= totalSize) 
-                });
-                
-                offset += CHUNK_SIZE;
-
-                const now = Date.now();
-                // Limitador de 1500ms para velocidade máxima de rede
-                if (now - lastUpdate > 1500 || offset >= totalSize) {
-                    const duration = (now - startTime) / 1000;
-                    const bps = offset / duration;
-                    const percent = Math.min(100, Math.round((offset / totalSize) * 100));
-                    const speedMB = (bps / 1024 / 1024).toFixed(1);
-                    const eta = Math.round((totalSize - offset) / bps);
-
-                    document.getElementById('progress-bar').style.width = percent + '%';
-                    document.getElementById('percent-label').innerText = percent + '%';
-                    document.getElementById('speed-label').innerText = speedMB + " MB/s";
-                    document.getElementById('eta-label').innerText = percent < 100 ? `Faltam ~${eta}s` : "Finalizado!";
-                    
-                    lastUpdate = now;
+                        pBar.style.width = pct + '%';
+                        document.getElementById('pct').innerText = pct + '%';
+                        document.getElementById('speed').innerText = (bps/1024/1024).toFixed(1) + " MB/s";
+                        etaDisp.innerText = formatTime(remainingTime);
+                        
+                        lastUp = now;
+                    }
                 }
             }
+            if(!isCancelled) { document.getElementById('send-btn').style.display = 'block'; document.getElementById('stop-btn').style.display = 'none'; }
         }
 
-        async function sendAllFiles() {
-            document.getElementById('send-trigger').disabled = true;
-            for (let file of selectedFiles) { await sendFile(file); }
-            statusLbl.innerText = "✅ Enviado!";
-            document.getElementById('send-trigger').disabled = false;
+        function cancelTransfer() { 
+            isCancelled = true; 
+            document.getElementById('send-btn').style.display = 'block'; 
+            document.getElementById('stop-btn').style.display = 'none'; 
+            document.getElementById('progress-bar').style.width = '0%'; 
+            document.getElementById('progress-bar').className = ''; 
+            document.getElementById('file-input').value = "";
+            document.getElementById('eta-display').innerText = "Cancelado";
         }
 
-        // Funções de Redes Sociais
-        function shareWhatsApp() {
-            const id = document.getElementById('my-id-display').innerText;
-            const link = `${window.location.origin}${window.location.pathname}?join=${id}`;
-            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent("Receba meus arquivos aqui: " + link)}`;
-            window.open(url, '_blank');
+        async function sendAll() {
+            const files = document.getElementById('file-input').files;
+            for(let f of files) { if(isCancelled) break; await sendFile(f); }
         }
 
-        function shareTelegram() {
-            const id = document.getElementById('my-id-display').innerText;
-            const link = `${window.location.origin}${window.location.pathname}?join=${id}`;
-            const texto = `Envie arquivos para mim:`;
-            const url = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(texto)}`;
-            window.open(url, '_blank');
-        }
-        
+        function shareWpp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}`); }
+        function shareTg() { window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}&text=PrivDrop Lab`); }
         function toggleScanner() {
             const r = document.getElementById('reader');
             if (r.style.display === 'block') { html5QrCode.stop(); r.style.display = 'none'; return; }
             r.style.display = 'block';
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
-                const url = new URL(text);
-                document.getElementById('peer-id-input').value = url.searchParams.get("join");
-                html5QrCode.stop().then(() => { r.style.display = 'none'; connectToPeer(); });
+                const url = new URL(text); connect(url.searchParams.get("join"));
+                html5QrCode.stop().then(() => { r.style.display = 'none'; });
             }).catch(() => {});
         }
     </script>
