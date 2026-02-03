@@ -1,18 +1,19 @@
 {
   "name": "PrivDrop P2P",
   "short_name": "PrivDrop",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f5f5f7",
   "theme_color": "#007aff",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512.jpg",
+      "src": "./icon-512.jpg",
       "sizes": "512x512",
       "type": "image/jpeg"
     }
