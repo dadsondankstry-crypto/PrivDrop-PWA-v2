@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop Ultra</title>
+    <title>PrivDrop Ultra - High Speed</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007aff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -15,61 +14,60 @@
 
     <style>
         :root { --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --green: #34c759; --border: #dddddd; }
-        @media (prefers-color-scheme: dark) { :root { --bg: #000000; --card: #1c1c1e; --text: #ffffff; --border: #38383a; } }
+        @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --text: #fff; --border: #38383a; } }
         
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); transition: 0.3s; overflow-x: hidden; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); transition: 0.3s; }
         
-        .card { background: var(--card); padding: 25px; border-radius: 28px; width: 100%; max-width: 420px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); text-align: center; margin-bottom: 20px; box-sizing: border-box; }
-        .my-id { font-size: 38px; font-weight: 800; color: var(--blue); letter-spacing: 4px; margin: 10px 0; }
+        .card { background: var(--card); padding: 25px; border-radius: 28px; width: 100%; max-width: 400px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); text-align: center; margin-bottom: 20px; box-sizing: border-box; }
+        .my-id { font-size: 38px; font-weight: 800; color: var(--blue); letter-spacing: 4px; }
         
-        #qrcode { display: flex; justify-content: center; margin: 15px auto; background: white; padding: 12px; border-radius: 18px; width: fit-content; }
+        #qrcode { display: flex; justify-content: center; margin: 15px auto; background: white; padding: 10px; border-radius: 15px; width: fit-content; }
         
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .btn-sec { padding: 14px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-sec { padding: 12px; border-radius: 14px; border: none; font-weight: 600; cursor: pointer; color: white; }
         .btn-wpp { background: #25d366; } .btn-scan { background: #3a3a3c; }
 
-        #reader { width: 100%; border-radius: 24px; overflow: hidden; display: none; margin-bottom: 20px; border: 2px solid var(--blue); background: #000; }
+        #reader { width: 100%; border-radius: 20px; overflow: hidden; display: none; margin-bottom: 20px; border: 2px solid var(--blue); }
 
-        .drop-zone { border: 2px dashed var(--border); border-radius: 24px; padding: 50px 20px; cursor: pointer; background: rgba(128,128,128,0.05); margin-bottom: 15px; transition: 0.2s; }
-        .drop-zone:active { transform: scale(0.98); background: rgba(0,122,255,0.05); }
+        .drop-zone { border: 2px dashed var(--border); border-radius: 20px; padding: 40px 20px; cursor: pointer; background: rgba(128,128,128,0.05); margin-bottom: 15px; }
+        .btn-primary { background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; }
+
+        #progress-container { display: none; margin-top: 20px; width: 100%; padding: 15px; background: rgba(128,128,128,0.05); border-radius: 15px; }
+        .progress-track { background: var(--border); height: 10px; border-radius: 5px; overflow: hidden; margin: 10px 0; }
         
-        .btn-primary { background: var(--blue); color: white; border: none; padding: 20px; border-radius: 18px; font-size: 16px; font-weight: 800; width: 100%; cursor: pointer; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
-        .btn-primary:disabled { background: #888; box-shadow: none; opacity: 0.6; }
-
-        #progress-container { display: none; margin-top: 20px; width: 100%; padding: 20px; background: rgba(128,128,128,0.08); border-radius: 20px; box-sizing: border-box; }
-        .progress-track { background: var(--border); height: 10px; border-radius: 5px; overflow: hidden; margin: 15px 0; }
-        #progress-bar { background: var(--blue); width: 0%; height: 100%; transition: width 0.4s ease-out; }
+        /* O segredo da suavidade está no transition aqui */
+        #progress-bar { background: var(--blue); width: 0%; height: 100%; transition: width 0.8s ease-out; }
         
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; font-size: 13px; font-weight: 800; color: #888; gap: 8px; }
-        .eta { grid-column: span 2; color: var(--blue); margin-top: 10px; font-size: 14px; text-align: center; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; font-size: 12px; font-weight: bold; color: #888; }
+        .eta { grid-column: span 2; color: var(--blue); margin-top: 5px; font-size: 13px; text-align: center; }
 
-        #status-msg { margin-top: 15px; font-size: 15px; color: var(--blue); font-weight: 700; }
+        #status-msg { margin-top: 15px; font-size: 14px; color: var(--blue); font-weight: 700; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <span style="color: #8e8e93; font-size: 12px; font-weight: 800; text-transform: uppercase;">Seu ID de Acesso</span>
+        <span style="color: #8e8e93; font-size: 11px; font-weight: bold; text-transform: uppercase;">ID do Dispositivo</span>
         <div id="my-id-display" class="my-id">----</div>
         <div id="qrcode"></div>
         <div class="btn-row">
             <button class="btn-sec btn-wpp" onclick="shareWhatsApp()">WhatsApp</button>
-            <button class="btn-sec btn-scan" onclick="toggleScanner()">Escanear</button>
+            <button class="btn-sec btn-scan" onclick="toggleScanner()">Câmera</button>
         </div>
     </div>
 
     <div id="reader"></div>
 
     <div class="card" id="setup-card">
-        <input type="text" id="peer-id-input" placeholder="ID do destinatário" style="width:100%; padding:18px; border-radius:18px; border:1px solid var(--border); background: var(--bg); color: var(--text); text-align:center; margin-bottom:15px; font-size: 20px; font-weight: 700;">
-        <button class="btn-primary" onclick="connectToPeer()">Conectar Agora</button>
-        <div id="status-msg">Aguardando Conexão...</div>
+        <input type="text" id="peer-id-input" placeholder="ID do destinatário" style="width:100%; padding:15px; border-radius:15px; border:1px solid var(--border); background: var(--bg); color: var(--text); text-align:center; margin-bottom:12px; font-size: 18px;">
+        <button class="btn-primary" onclick="connectToPeer()">Conectar</button>
+        <div id="status-msg">Pronto para conectar</div>
     </div>
 
     <div class="card" id="transfer-card" style="display:none;">
         <div class="drop-zone" onclick="document.getElementById('file-input').click()">
-            <span style="font-size: 55px;">📂</span>
-            <p id="drop-label" style="margin-top:10px; font-weight: 700;">Escolher Arquivos</p>
+            <span style="font-size: 50px;">📂</span>
+            <p id="drop-label">Toque para selecionar arquivos</p>
             <input type="file" id="file-input" multiple style="display: none;">
         </div>
         
@@ -77,10 +75,10 @@
             <div class="stats-grid">
                 <span id="percent-label">0%</span>
                 <span id="speed-label" style="text-align: right;">0 MB/s</span>
-                <div class="eta" id="eta-label">Preparando...</div>
+                <div class="eta" id="eta-label">Calculando...</div>
             </div>
             <div class="progress-track"><div id="progress-bar"></div></div>
-            <div id="file-list" style="font-size:12px; text-align:left; opacity:0.7;"></div>
+            <div id="file-list" style="font-size:11px; text-align:left; opacity:0.6;"></div>
         </div>
 
         <button class="btn-primary" style="background:var(--green); display:none; margin-top:15px;" id="send-trigger" onclick="sendAllFiles()">Enviar Tudo</button>
@@ -90,17 +88,6 @@
         let peer, conn, selectedFiles = [], html5QrCode, receivedChunks = {};
         const statusLbl = document.getElementById('status-msg');
 
-        // Audio Feedback
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(t) {
-            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-            o.connect(g); g.connect(audioCtx.destination);
-            o.frequency.setValueAtTime(t === 'success' ? 880 : 440, audioCtx.currentTime);
-            g.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            o.start(); o.stop(audioCtx.currentTime + 0.1);
-        }
-
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 
         peer = new Peer(Math.floor(1000 + Math.random() * 9000).toString());
@@ -108,33 +95,19 @@
         peer.on('open', id => {
             document.getElementById('my-id-display').innerText = id;
             const link = `${window.location.origin}${window.location.pathname}?join=${id}`;
-            new QRCode(document.getElementById("qrcode"), { text: link, width: 150, height: 150 });
-            const joinId = new URLSearchParams(window.location.search).get('join');
-            if (joinId) { document.getElementById('peer-id-input').value = joinId; setTimeout(connectToPeer, 1000); }
+            new QRCode(document.getElementById("qrcode"), { text: link, width: 140, height: 140 });
         });
-
-        function toggleScanner() {
-            const r = document.getElementById('reader');
-            if (r.style.display === 'block') { html5QrCode.stop(); r.style.display = 'none'; return; }
-            r.style.display = 'block';
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (text) => {
-                const url = new URL(text);
-                document.getElementById('peer-id-input').value = url.searchParams.get("join");
-                html5QrCode.stop().then(() => { r.style.display = 'none'; connectToPeer(); });
-            }).catch(() => {});
-        }
 
         function connectToPeer() {
             const target = document.getElementById('peer-id-input').value;
             if (!target) return;
             statusLbl.innerText = "Conectando...";
             conn = peer.connect(target, { reliable: true });
-            conn.on('open', () => { playSound('connect'); setupTransferMode("Conectado!"); });
+            conn.on('open', () => setupTransferMode("Conectado!"));
             setupHandler();
         }
 
-        peer.on('connection', c => { conn = c; playSound('connect'); setupHandler(); setupTransferMode("Conectado!"); });
+        peer.on('connection', c => { conn = c; setupHandler(); setupTransferMode("Conectado!"); });
 
         function setupTransferMode(m) {
             document.getElementById('transfer-card').style.display = 'block';
@@ -155,11 +128,10 @@
                         const a = document.createElement('a');
                         a.href = URL.createObjectURL(b); a.download = data.name; a.click();
                         delete receivedChunks[data.name];
-                        statusLbl.innerText = "✅ Recebido!"; playSound('success');
+                        statusLbl.innerText = "✅ Recebido!";
                     }
                 }
             });
-            conn.on('close', () => location.reload());
         }
 
         document.getElementById('file-input').onchange = e => {
@@ -169,13 +141,12 @@
             document.getElementById('drop-label').innerText = selectedFiles.length + " prontos";
         };
 
-        // FUNÇÃO DE ENVIO COM LIMITADOR DE INTERFACE PARA ALTA VELOCIDADE
         async function sendFile(file) {
-            const CHUNK_SIZE = 65536; // 64KB por fatia
+            const CHUNK_SIZE = 65536; 
             const totalSize = file.size;
             let offset = 0;
             let startTime = Date.now();
-            let lastUpdate = 0; // Limitador de tempo para a UI
+            let lastUpdate = 0;
 
             document.getElementById('progress-container').style.display = 'block';
 
@@ -194,8 +165,8 @@
                 offset += CHUNK_SIZE;
 
                 const now = Date.now();
-                // SÓ ATUALIZA A TELA A CADA 500ms (Evita engasgar o processador)
-                if (now - lastUpdate > 500 || offset >= totalSize) {
+                // ATUALIZAÇÃO TESTE: 1500ms (1.5 segundos)
+                if (now - lastUpdate > 1500 || offset >= totalSize) {
                     const duration = (now - startTime) / 1000;
                     const bps = offset / duration;
                     const percent = Math.min(100, Math.round((offset / totalSize) * 100));
@@ -205,7 +176,7 @@
                     document.getElementById('progress-bar').style.width = percent + '%';
                     document.getElementById('percent-label').innerText = percent + '%';
                     document.getElementById('speed-label').innerText = speedMB + " MB/s";
-                    document.getElementById('eta-label').innerText = percent < 100 ? `Restam aprox. ${eta}s` : "Finalizando...";
+                    document.getElementById('eta-label').innerText = percent < 100 ? `Tempo restante: ~${eta}s` : "Finalizado!";
                     
                     lastUpdate = now;
                 }
@@ -213,19 +184,28 @@
         }
 
         async function sendAllFiles() {
-            const btn = document.getElementById('send-trigger');
-            btn.disabled = true;
-            for (let file of selectedFiles) {
-                await sendFile(file);
-            }
-            playSound('success');
+            document.getElementById('send-trigger').disabled = true;
+            for (let file of selectedFiles) { await sendFile(file); }
             statusLbl.innerText = "✅ Tudo enviado!";
-            btn.disabled = false;
+            document.getElementById('send-trigger').disabled = false;
         }
 
         function shareWhatsApp() {
-            const link = `${window.location.origin}${window.location.pathname}?join=${document.getElementById('my-id-display').innerText}`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Receba meus arquivos: " + link)}`);
+            const id = document.getElementById('my-id-display').innerText;
+            const link = `${window.location.origin}${window.location.pathname}?join=${id}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Envie arquivos: " + link)}`);
+        }
+        
+        function toggleScanner() {
+            const r = document.getElementById('reader');
+            if (r.style.display === 'block') { html5QrCode.stop(); r.style.display = 'none'; return; }
+            r.style.display = 'block';
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
+                const url = new URL(text);
+                document.getElementById('peer-id-input').value = url.searchParams.get("join");
+                html5QrCode.stop().then(() => { r.style.display = 'none'; connectToPeer(); });
+            }).catch(() => {});
         }
     </script>
 </body>
